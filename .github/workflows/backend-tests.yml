@@ -1,0 +1,60 @@
+name: Backend Tests
+
+on:
+  push:
+    branches: [ main, backend_optimization ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-tests.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run security tests
+      env:
+        REDIS_HOST: localhost
+        REDIS_PORT: 6379
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: |
+        cd backend
+        python test_secure_system.py
+
+    - name: Check test results
+      if: success()
+      run: echo "✅ All tests passed!"
+
+    - name: Notify on failure
+      if: failure()
+      run: echo "❌ Tests failed! Check logs above."
