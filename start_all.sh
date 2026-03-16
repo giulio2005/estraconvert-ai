@@ -39,9 +39,8 @@ else
         echo -e "${RED}❌ Virtual environment not found. Run ./setup.sh first.${NC}"
         exit 1
     fi
-    source venv/bin/activate
-    # Use nohup to run in background
-    nohup python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 > logs/backend.log 2>&1 &
+    # Use absolute path to python in venv for reliability
+    nohup venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 > logs/backend.log 2>&1 &
     echo $! > ../backend.pid
     cd ..
     sleep 2
@@ -60,9 +59,9 @@ if pgrep -f "celery.*worker" > /dev/null 2>&1 ; then
 else
     echo -e "${YELLOW}⚙️  Starting Celery Worker...${NC}"
     cd backend
-    source venv/bin/activate
+    # Use absolute path to celery in venv
     # Using -P threads for I/O bound tasks (API calls)
-    nohup celery -A celery_app worker --loglevel=info -P threads -c 4 -n worker1@%h > logs/celery.log 2>&1 &
+    nohup venv/bin/celery -A celery_app worker --loglevel=info -P threads -c 4 -n worker1@%h > logs/celery.log 2>&1 &
     echo $! > ../celery.pid
     cd ..
     sleep 2
