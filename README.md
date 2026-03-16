@@ -14,105 +14,78 @@ Before running the application, ensure you have the following installed:
     -   Ubuntu: `sudo apt-get install tesseract-ocr`
     -   Windows: Download installer from UB-Mannheim
 
-## Installation
+## Quick Start (Recommended)
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/estraconvert.git
-cd estraconvert
-```
-
-### 2. Backend Setup
-
-Navigate to the backend directory:
-
-```bash
-cd backend
-```
-
-Create a virtual environment and activate it:
-
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-```
-
-Install Python dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-#### API Key Configuration
-
-You need an API key to use the AI features.
-
-1.  Copy the example environment file:
+1.  **Clone the Repository**
     ```bash
-    cp .env.example .env
+    git clone https://github.com/giulio2005/estraconvert-ai.git
+    cd estraconvert-ai
     ```
-2.  Open `.env` in a text editor.
-3.  Add your API Key:
-    *   **For Google Gemini:** Get a key from [Google AI Studio](https://aistudio.google.com/) and set `GEMINI_API_KEY`.
-    *   **For OpenRouter:** Get a key from [OpenRouter](https://openrouter.ai/) and set `OPENROUTER_API_KEY`.
-4.  Set `AI_PROVIDER` to either `gemini` or `openrouter` depending on your preference.
 
-### 3. Frontend Setup
+2.  **Setup Environment**
+    Run the setup script to install all dependencies for both backend and frontend automatically.
+    ```bash
+    chmod +x setup.sh start_all.sh stop_all.sh
+    ./setup.sh
+    ```
 
-Navigate to the frontend directory:
+3.  **Configure API Key**
+    You need an API key to use the AI features. The setup script creates a `.env` file in the `backend/` directory.
 
-```bash
-cd ../frontend
-```
+    Open `backend/.env` and add your API Key:
+    ```bash
+    # For Google Gemini (Free tier available)
+    GEMINI_API_KEY=your_gemini_api_key_here
+    AI_PROVIDER=gemini
 
-Install Node.js dependencies:
+    # OR for OpenRouter
+    OPENROUTER_API_KEY=your_openrouter_api_key_here
+    AI_PROVIDER=openrouter
+    ```
+    -   Get a Gemini key from [Google AI Studio](https://aistudio.google.com/).
+    -   Get an OpenRouter key from [OpenRouter](https://openrouter.ai/).
 
-```bash
-npm install
-# or
-yarn install
-```
+4.  **Start Services**
+    Start the backend, frontend, and worker processes with one command:
+    ```bash
+    ./start_all.sh
+    ```
 
-## Usage
+    -   **Frontend:** http://localhost:3000
+    -   **Backend API:** http://localhost:8000
+    -   **API Docs:** http://localhost:8000/docs
 
-### Start All Services (Recommended)
+5.  **Stop Services**
+    To stop all running services:
+    ```bash
+    ./stop_all.sh
+    ```
 
-From the project root directory, verify all dependencies are installed:
-```bash
-./setup.sh
-```
+## Manual Installation (Alternative)
 
-Then start both backend and frontend:
+If you prefer to set up manually:
 
-```bash
-./start_all.sh
-```
+### Backend
+1.  Navigate to `backend/`.
+2.  Create a virtual environment: `python -m venv venv`
+3.  Activate it: `source venv/bin/activate` (or `venv\Scripts\activate` on Windows)
+4.  Install dependencies: `pip install -r requirements.txt`
+5.  Copy `.env.example` to `.env` and configure your API keys.
+6.  Start Redis server manually.
+7.  Start Celery worker: `celery -A celery_app worker --loglevel=info`
+8.  Start FastAPI: `python -m uvicorn app.main:app --host 0.0.0.0 --port 8000`
 
-### Manual Start
-
-**Backend:**
-```bash
-cd backend
-source venv/bin/activate
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-(Ensure Redis is running separately)
-
-**Frontend:**
-```bash
-cd frontend
-npm run dev
-```
-
-Open your browser and navigate to `http://localhost:3000`.
+### Frontend
+1.  Navigate to `frontend/`.
+2.  Install dependencies: `npm install`
+3.  Start development server: `npm run dev`
 
 ## Features
 
 -   **PDF Upload:** Upload bank statement PDFs.
 -   **AI Extraction:** Automatically extracts transaction details using LLMs.
 -   **Export:** Download data as CSV or Excel.
--   **Multi-Format Support:** Currently optimized for Italian bank statements.
+-   **Multi-Format Support:** Optimized for Italian bank statements.
 
 ## License
 
