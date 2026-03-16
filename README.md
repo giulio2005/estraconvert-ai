@@ -23,10 +23,18 @@ Before running the application, ensure you have the following installed:
     ```
 
 2.  **Setup Environment**
-    Run the setup script to install all dependencies for both backend and frontend automatically.
+    Run the setup script for your OS:
+
+    **macOS / Linux:**
     ```bash
     chmod +x setup.sh start_all.sh stop_all.sh
     ./setup.sh
+    ```
+
+    **Windows:**
+    Double-click `setup.bat` or run in Command Prompt:
+    ```cmd
+    setup.bat
     ```
 
 3.  **Configure API Key**
@@ -46,9 +54,17 @@ Before running the application, ensure you have the following installed:
     -   Get an OpenRouter key from [OpenRouter](https://openrouter.ai/).
 
 4.  **Start Services**
-    Start the backend, frontend, and worker processes with one command:
+    Start the backend, frontend, and worker processes:
+
+    **macOS / Linux:**
     ```bash
     ./start_all.sh
+    ```
+
+    **Windows:**
+    Double-click `start_all.bat` or run:
+    ```cmd
+    start_all.bat
     ```
 
     -   **Frontend:** http://localhost:3000

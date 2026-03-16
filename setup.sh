@@ -10,11 +10,26 @@ echo -e "${GREEN}🚀 EstraConvert Setup Script${NC}"
 echo "============================"
 
 # Check for Python
-if ! command -v python3 &> /dev/null; then
+if command -v python3 &> /dev/null; then
+    PYTHON_CMD=python3
+elif command -v python &> /dev/null; then
+    PYTHON_CMD=python
+else
     echo -e "${RED}❌ Python 3 is not installed.${NC}"
     exit 1
 fi
-echo -e "${GREEN}✅ Python 3 found${NC}"
+
+# Check Python version
+PYTHON_VERSION=$($PYTHON_CMD -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+REQUIRED_MAJOR=3
+REQUIRED_MINOR=10
+
+if ! $PYTHON_CMD -c "import sys; exit(0 if sys.version_info >= ($REQUIRED_MAJOR, $REQUIRED_MINOR) else 1)"; then
+    echo -e "${RED}❌ Python $PYTHON_VERSION is too old. Please install Python $REQUIRED_MAJOR.$REQUIRED_MINOR or higher.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Python $PYTHON_VERSION found ($PYTHON_CMD)${NC}"
 
 # Check for Node.js
 if ! command -v node &> /dev/null; then
@@ -41,6 +56,15 @@ else
     echo -e "${GREEN}✅ Tesseract OCR found${NC}"
 fi
 
+# Check for Poppler (needed for pdf2image)
+if ! command -v pdfinfo &> /dev/null; then
+    echo -e "${YELLOW}⚠️  Poppler utils not found. Please install Poppler for PDF processing.${NC}"
+    echo "   macOS: brew install poppler"
+    echo "   Ubuntu: sudo apt-get install poppler-utils"
+else
+    echo -e "${GREEN}✅ Poppler utils found${NC}"
+fi
+
 echo ""
 echo -e "${YELLOW}📦 Setting up Backend...${NC}"
 cd backend
@@ -48,11 +72,22 @@ cd backend
 # Create virtual environment if not exists
 if [ ! -d "venv" ]; then
     echo "Creating virtual environment..."
-    python3 -m venv venv
+    $PYTHON_CMD -m venv venv
 fi
 
 # Activate venv
-source venv/bin/activate
+if [ -f "venv/bin/activate" ]; then
+    source venv/bin/activate
+elif [ -f "venv/Scripts/activate" ]; then
+    source venv/Scripts/activate
+else
+    echo -e "${RED}❌ Failed to create/activate virtual environment.${NC}"
+    exit 1
+fi
+
+# Upgrade pip
+echo "Upgrading pip..."
+pip install --upgrade pip
 
 # Install dependencies
 echo "Installing Python dependencies..."
